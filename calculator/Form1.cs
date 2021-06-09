@@ -17,6 +17,7 @@ namespace calculator
         public string operation;
         public bool check_value;
         public List<String> test_list = new List<string>();
+        public List<string> history_test = new List<string> ();
         public Form1()
         {
             check_value = false;
@@ -26,8 +27,14 @@ namespace calculator
                 var items = db.HistoryItems;
                 foreach (History i in items)
                 {
-                    listBox1.Items.Add(i);
+                    history_test.Add(i.Id.ToString());
+                    history_test.Add(i.Date);
+                    history_test.Add(i.Operation);
+
                 }
+                string[] history_items;
+                history_items = history_test.ToArray();
+                listBox1.Items.AddRange(history_items);
             }
         }
 
@@ -36,15 +43,16 @@ namespace calculator
         private void AllNubmers(object sender, EventArgs e)
         {
             if (check_value)
+            {
                 check_value = false;
-            textBox1.Text = "0";
+                textBox1.Text = "0";
+            }
             Button b = (Button)sender;
             if (textBox1.Text == "0")
                 textBox1.Text = b.Text;
             else
                 textBox1.Text += b.Text;
-
-            listBox1.Items.Add(b.Text);
+                listBox1.Items.Add(textBox1.Text);
             test_list.Add(b.Text);
         }
 
@@ -95,17 +103,14 @@ namespace calculator
             check_value = true;
             textBox1.Text = result.ToString();
             listBox1.Items.Add("=" + result.ToString());
-            test_list.Add(result.ToString());
-            string[] array = test_list.ToArray();
-            listBox1.Items.AddRange(array);
+            listBox1.Items.Add(" ");
+            test_list.Add("=" +  result.ToString());
+            var oper = String.Join(" ", test_list.ToArray());
 
             using (HistoryContex db = new HistoryContex())
             {
-                History test1 = new History { Date = "2020/05/25", Operation = "2 * 2 = 4" };
-                History test2 = new History { Date = "2025/10/25", Operation = "5 * 5 = 25" };
-
+                History test1 = new History { Date = DateTime.Now.ToString(), Operation = oper };
                 db.HistoryItems.Add(test1);
-                db.HistoryItems.Add(test2);
                 db.SaveChanges();
             }
 
